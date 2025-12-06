@@ -1,5 +1,11 @@
 package main
 
+/*
+	- Create 100 MB of random bytes.
+	- Filter the prime numbers.
+	- Report benchmark times.
+*/
+
 import (
 	"fmt"
 	"math/rand/v2"
