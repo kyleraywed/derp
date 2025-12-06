@@ -75,3 +75,8 @@ func main() {
     // Foreach() was called before Take()
 }
 ```
+Notes and design
+- 
+- If the type you're enumerating over is or contains reference types, remember to
+use the WithDeepClone() method. Otherwise, you may end up with unintended side-effects
+on the input data. If that's of no consequence, the default shallow copy is quick.
