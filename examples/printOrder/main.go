@@ -28,12 +28,12 @@ func main() {
 	// No comment, empty slice
 	enum.Foreach(func(value byte) {
 		fmt.Println(value)
-	})
+	}, "cons", "Print fast.")
 
 	// Notice the index for this Map will be 1 since it's the second time Map is called.
 	enum.Map(func(value byte) byte {
 		return value + 1
-	}, "Increment value")
+	}, "Increment value", "Check the index")
 
 	fmt.Println(enum)
 }

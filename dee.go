@@ -259,9 +259,19 @@ func (iter Dee[T]) String() string {
 	)
 
 	for idx, val := range iter.orders {
+		var prettyComments string
+
+		if len(val.comments) == 0 {
+			prettyComments += "[ N/A ]\n"
+		}
+
+		for _, cmt := range val.comments {
+			prettyComments += "[ " + cmt + " ]\n\t\t"
+		}
+
 		out += fmt.Sprintf(
-			"Order %v:\n\tAdapter: %v\n\tIndex: %v\n\tComments %v\n",
-			idx+1, val.method, val.index, val.comments,
+			"Order %v:\n\tAdapter: %v\n\tIndex: %v\n\tComments: \n\t\t%v\n",
+			idx+1, val.method, val.index, prettyComments,
 		)
 	}
 
