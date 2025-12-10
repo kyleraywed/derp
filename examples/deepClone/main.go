@@ -33,7 +33,7 @@ func main() {
 
 	var enum dee.Dee[person]
 
-	// Without this, Apply() will affect p.
+	// Without this, Apply() will affect p because p contains reference types []string and map.
 	// It can be placed anywhere before Apply().
 	enum.WithDeepClone(func(value person) person {
 		out := value
