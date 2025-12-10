@@ -9,7 +9,7 @@ import (
 	"maps"
 	"slices"
 
-	"github.com/kyleraywed/dee"
+	"github.com/kyleraywed/dei"
 )
 
 type person struct {
@@ -31,7 +31,7 @@ func main() {
 		},
 	}
 
-	var enum dee.Dee[person]
+	var enum dei.Dei[person]
 
 	// Without this, Apply() will affect p because p contains reference types []string and map.
 	// It can be placed anywhere before Apply().

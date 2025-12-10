@@ -9,7 +9,7 @@ import (
 	"math/rand/v2"
 	"time"
 
-	"github.com/kyleraywed/dee"
+	"github.com/kyleraywed/dei"
 )
 
 const size = 1024 * 1024 * 100
@@ -26,7 +26,7 @@ func main() {
 
 	start = time.Now()
 	fmt.Print("Processing... ")
-	var iter dee.Dee[byte]
+	var iter dei.Dei[byte]
 
 	iter.Filter(func(value byte) bool {
 		if value < 2 {
