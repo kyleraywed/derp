@@ -12,9 +12,10 @@ import (
 	"fmt"
 	"log"
 	"runtime"
-	"slices"
 	"strconv"
 	"sync"
+
+	clone "github.com/huandu/go-clone/generic"
 )
 
 type order struct {
@@ -32,8 +33,6 @@ type Derp[T any] struct {
 	skipCounts []int
 
 	orders []order
-
-	userDeepClone func(t T) T
 }
 
 // Keep only the elements where in returns true. Optional comment strings.
@@ -92,13 +91,7 @@ func (pipeline *Derp[T]) Take(n int) {
 // Interpret orders on data. Return new slice.
 func (pipeline *Derp[T]) Apply(input []T) []T {
 	workingSlice := make([]T, len(input))
-	if pipeline.userDeepClone != nil {
-		for i := range input {
-			workingSlice[i] = pipeline.userDeepClone(input[i])
-		}
-	} else {
-		workingSlice = slices.Clone(input) // shallow copy
-	}
+	workingSlice = clone.Clone(input) // deep clone by default
 
 	numWorkers := runtime.GOMAXPROCS(0)
 	// init chunksize
@@ -245,20 +238,8 @@ func (pipeline *Derp[T]) Apply(input []T) []T {
 	return workingSlice
 }
 
-// If your element type contains any reference fields and you want to guarantee
-// that the original input is never mutated, provide a deep clone function here.
-// The clone function must return a fully independent copy of the element. By
-// default, all values, reference or not, are shallowly cloned.
-func (pipeline *Derp[T]) WithDeepClone(in func(value T) T, comments ...string) {
-	pipeline.userDeepClone = in
-}
-
 func (pipeline Derp[T]) String() string {
 	var out string
-
-	out += fmt.Sprintf(
-		"Deep clone implemented: %v\n", pipeline.userDeepClone != nil,
-	)
 
 	for idx, val := range pipeline.orders {
 		var prettyComments string

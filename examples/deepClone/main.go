@@ -2,12 +2,11 @@ package main
 
 /*
 	- Demonstrate WithDeepClone()
+	- NOTE: Auto deep-cloning is now the default
 */
 
 import (
 	"fmt"
-	"maps"
-	"slices"
 
 	"github.com/kyleraywed/derp"
 )
@@ -31,24 +30,15 @@ func main() {
 		},
 	}
 
-	var enum derp.Derp[person]
+	var pipe derp.Derp[person]
 
-	// Without this, Apply() will affect p because p contains reference types []string and map.
-	// It can be placed anywhere before Apply().
-	enum.WithDeepClone(func(value person) person {
-		out := value
-		out.tags = slices.Clone(value.tags)
-		out.meta = maps.Clone(value.meta)
-		return out
-	})
-
-	enum.Map(func(value person) person {
+	pipe.Map(func(value person) person {
 		value.tags = append(value.tags, "a")
 		value.meta[4] = "four"
 		return value
 	})
 
-	new := enum.Apply(p)
+	new := pipe.Apply(p)
 
 	fmt.Println("New:\t", new)
 	fmt.Println("Old:\t", p)
