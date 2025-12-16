@@ -23,12 +23,6 @@ func (pipeline *Derp[T]) Take(n int)
 
 // Interpret orders on data. Return new slice.
 func (pipeline *Derp[T]) Apply(input []T) []T
-
-// If your element type contains any reference fields and you want to guarantee
-// that the original input is never mutated, provide a deep clone function here.
-// The clone function must return a fully independent copy of the element. By
-// default, all values, reference or not, are shallowly cloned.
-func (pipeline *Dei[T]) WithDeepClone(in func(value T) T, comments ...string)
 ```
 
 Usage
@@ -77,8 +71,6 @@ func main() {
 ```
 Notes and design
 - 
-- If your input data is or contains reference types, remember to use the
-WithDeepClone() method. Otherwise, you may end up with unintended side-effects on
-the input data. If that's of no consequence, the default shallow copy is quick.
+- Deep cloning is handled automatically via [go-clone](https://github.com/huandu/go-clone). 
 
 - Derp is **not** safe for concurrent use.
