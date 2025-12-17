@@ -68,7 +68,11 @@ func TestFilter(t *testing.T) {
 	})
 
 	expected := []int{2, 4, 6, 8, 10}
-	gotten, _ := pipe.Apply(numbers)
+	gotten, err := pipe.Apply(numbers)
+
+	if err != nil {
+		t.Errorf("TestFilter() error at Apply(): %v", err)
+	}
 
 	if len(expected) != len(gotten) {
 		t.Error("Filter len mismatch")
@@ -90,7 +94,11 @@ func TestMap(t *testing.T) {
 	})
 
 	expected := []int{1, 4, 9, 16, 25, 36, 49, 64, 81, 100}
-	gotten, _ := pipe.Apply(numbers)
+	gotten, err := pipe.Apply(numbers)
+
+	if err != nil {
+		t.Errorf("TestFilter() error at Apply(): %v", err)
+	}
 
 	if len(expected) != len(gotten) {
 		t.Error("Map len mismatch")
@@ -110,7 +118,11 @@ func TestTake(t *testing.T) {
 	halfPipe.Take(5)
 
 	expected := []int{1, 2, 3, 4, 5}
-	gotten, _ := halfPipe.Apply(numbers)
+	gotten, err := halfPipe.Apply(numbers)
+
+	if err != nil {
+		t.Errorf("TestTake() error at Apply(): %v", err)
+	}
 
 	if len(expected) != len(gotten) {
 		t.Error("Take len mismatch")
@@ -124,7 +136,7 @@ func TestTake(t *testing.T) {
 
 	var upperEdge Derp[int]
 	upperEdge.Take(11)
-	_, err := upperEdge.Apply(numbers)
+	_, err = upperEdge.Apply(numbers)
 	if err == nil {
 		t.Errorf("Out of range Take() value not throwing error.")
 	}
@@ -137,7 +149,11 @@ func TestSkip(t *testing.T) {
 	halfPipe.Skip(5)
 
 	expected := []int{6, 7, 8, 9, 10}
-	gotten, _ := halfPipe.Apply(numbers)
+	gotten, err := halfPipe.Apply(numbers)
+
+	if err != nil {
+		t.Errorf("TestSkip() error at Apply(): %v", err)
+	}
 
 	if len(expected) != len(gotten) {
 		t.Error("Skip len mismatch")
@@ -152,7 +168,7 @@ func TestSkip(t *testing.T) {
 	var upperEdge Derp[int]
 
 	upperEdge.Skip(11)
-	_, err := upperEdge.Apply(numbers)
+	_, err = upperEdge.Apply(numbers)
 	if err == nil {
 		t.Errorf("Out of range Skip() value not throwing error.")
 	}
