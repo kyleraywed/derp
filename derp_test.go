@@ -44,18 +44,18 @@ func TestOrder(t *testing.T) {
 	}
 
 	if len(pipe.orders) != len(expected) {
-		t.Error("Order len mismatch")
+		t.Error("TestOrder(); length inequality error")
 	}
 
 	for idx, val := range expected {
 		if pipe.orders[idx].method != val.method {
-			t.Errorf("Order adapter mismatch.\nExpected: [%v] Got: [%v]\n", val.method, pipe.orders[idx].method)
+			t.Errorf("TestOrder(); order adapter mismatch.\nExpected: [%v] Got: [%v]\n", val.method, pipe.orders[idx].method)
 		}
 		if pipe.orders[idx].index != val.index {
-			t.Errorf("Order index mismatch.\nExpected: [%v] Got: [%v]\n", val.index, pipe.orders[idx].index)
+			t.Errorf("TestOrder(); order index mismatch.\nExpected: [%v] Got: [%v]\n", val.index, pipe.orders[idx].index)
 		}
 		if pipe.orders[idx].comments[0] != val.comments[0] {
-			t.Errorf("Order comment mismatch.\nExpected: [%v] Got: [%v]\n", val.comments, pipe.orders[idx].comments[0])
+			t.Errorf("TestOrder(); order comment mismatch.\nExpected: [%v] Got: [%v]\n", val.comments, pipe.orders[idx].comments[0])
 		}
 	}
 }
@@ -72,16 +72,16 @@ func TestFilter(t *testing.T) {
 	gotten, err := pipe.Apply(numbers)
 
 	if err != nil {
-		t.Errorf("TestFilter() error at Apply(): %v", err)
+		t.Errorf("TestFilter() error from Apply(): %v", err)
 	}
 
 	if len(expected) != len(gotten) {
-		t.Error("Filter len mismatch")
+		t.Error("TestFilter(); length inequality error")
 	}
 
 	for idx, val := range expected {
 		if gotten[idx] != val {
-			t.Errorf("Filter value mismatch.\nExpected: [%v] Got: [%v]\n", expected, gotten)
+			t.Errorf("TestFilter(); value mismatch.\nExpected: [%v] Got: [%v]\n", expected, gotten)
 		}
 	}
 }
@@ -98,16 +98,16 @@ func TestMap(t *testing.T) {
 	gotten, err := pipe.Apply(numbers)
 
 	if err != nil {
-		t.Errorf("TestFilter() error at Apply(): %v", err)
+		t.Errorf("TestMap(); error from Apply(): %v", err)
 	}
 
 	if len(expected) != len(gotten) {
-		t.Error("Map len mismatch")
+		t.Error("TestMap(); length inequality error")
 	}
 
 	for idx, val := range expected {
 		if gotten[idx] != val {
-			t.Errorf("Map value mismatch.\nExpected: [%v] Got: [%v]\n", expected, gotten)
+			t.Errorf("TestMap(); value mismatch.\nExpected: [%v] Got: [%v]\n", expected, gotten)
 		}
 	}
 }
@@ -124,24 +124,24 @@ func TestTake(t *testing.T) {
 	gotten, err := halfPipe.Apply(numbers)
 
 	if err != nil {
-		t.Errorf("TestTake() error at Apply(): %v", err)
+		t.Errorf("TestTake() error from Apply(): %v", err)
 	}
 
 	if len(expected) != len(gotten) {
-		t.Error("Take len mismatch")
+		t.Error("TestTake(); length inequality error")
 	}
 
 	for idx, val := range expected {
 		if gotten[idx] != val {
-			t.Errorf("Take value mismatch.\nExpected: [%v] Got: [%v]\n", expected, gotten)
+			t.Errorf("TestTake(); value mismatch.\nExpected: [%v] Got: [%v]\n", expected, gotten)
 		}
 	}
 
-	var upperEdge Derp[int]
-	upperEdge.Take(11)
-	_, err = upperEdge.Apply(numbers)
+	var outOfBounds Derp[int]
+	outOfBounds.Take(len(numbers) + 1)
+	_, err = outOfBounds.Apply(numbers)
 	if err == nil {
-		t.Errorf("Out of range Take() value not throwing error.")
+		t.Errorf("TestTake(); out of range Take(%v) did not return expected error.", len(numbers)+1)
 	}
 }
 
@@ -157,25 +157,25 @@ func TestSkip(t *testing.T) {
 	gotten, err := halfPipe.Apply(numbers)
 
 	if err != nil {
-		t.Errorf("TestSkip() error at Apply(): %v", err)
+		t.Errorf("TestSkip() error from Apply(): %v", err)
 	}
 
 	if len(expected) != len(gotten) {
-		t.Error("Skip len mismatch")
+		t.Error("TestSkip(); length inequality error")
 	}
 
 	for idx, val := range expected {
 		if gotten[idx] != val {
-			t.Errorf("Skip value mismatch.\nExpected: [%v] Got: [%v]\n", expected, gotten)
+			t.Errorf("TestSkip(); value mismatch.\nExpected: [%v] Got: [%v]\n", expected, gotten)
 		}
 	}
 
-	var upperEdge Derp[int]
+	var outOfBounds Derp[int]
 
-	upperEdge.Skip(11)
-	_, err = upperEdge.Apply(numbers)
+	outOfBounds.Skip(len(numbers) + 1)
+	_, err = outOfBounds.Apply(numbers)
 	if err == nil {
-		t.Errorf("Out of range Skip() value not throwing error.")
+		t.Errorf("TestSkip(); out of range Skip(%v) value not throwing error.", len(numbers)+1)
 	}
 }
 
@@ -195,8 +195,26 @@ func TestForeach(t *testing.T) {
 
 	for idx, val := range expected {
 		if gotten[idx] != val {
-			t.Errorf("Foreach value mismatch.\nExpected: [%v] Got: [%v]\n", expected, gotten)
+			t.Errorf("TestForeach(); value mismatch.\nExpected: [%v] Got: [%v]\n", expected, gotten)
 		}
+	}
+}
+
+func TestForeachMut(t *testing.T) {
+	numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	var pipe Derp[int]
+
+	pipe.Foreach(func(value int) {
+		value = value * 2
+	})
+
+	out, err := pipe.Apply(numbers)
+	if err != nil {
+		t.Errorf("TestForeachMut(); error from Apply(): %v", err)
+	}
+
+	if !slices.Equal(numbers, out) {
+		t.Errorf("TestForeachMut(); output mutated. Expected equality with input.")
 	}
 }
 
@@ -215,7 +233,10 @@ func TestForeachFast(t *testing.T) {
 		mu.Unlock()
 	}, "con")
 
-	pipe.Apply(numbers)
+	_, err := pipe.Apply(numbers)
+	if err != nil {
+		t.Errorf("TerForeachFast(); error from Apply(): %v", err)
+	}
 
 	slices.SortFunc(gotten, func(a, b string) int {
 		ai, _ := strconv.Atoi(a)
@@ -225,7 +246,7 @@ func TestForeachFast(t *testing.T) {
 
 	for idx, val := range expected {
 		if gotten[idx] != val {
-			t.Errorf("Foreach value mismatch.\nExpected: [%v] Got: [%v]\n", expected, gotten)
+			t.Errorf("TestForeachFast(); value mismatch.\nExpected: [%v] Got: [%v]\n", expected, gotten)
 		}
 	}
 }
@@ -255,13 +276,16 @@ func TestDeepClone(t *testing.T) {
 		return value
 	})
 
-	out, _ := pipe.Apply(people)
+	out, err := pipe.Apply(people)
+	if err != nil {
+		t.Fatalf("TestDeepClone(); error from Apply(): %v", err)
+	}
 
 	if out[0].tags[0] != "CHANGED" {
-		t.Fatalf("Deep Clone mutation error, no change.\nExpected: [\"CHANGED\"] Got: [%v]\n", out[0].tags[0])
+		t.Fatalf("TestDeepClone(); mutation error, no change.\nExpected: [\"CHANGED\"] Got: [%v]\n", out[0].tags[0])
 	}
 
 	if people[0].meta["one"] != 1 {
-		t.Fatalf("Deep Clone mutation error, original data mutated.\nExpected: [1] Got: [%v]\n", out[0].meta["one"])
+		t.Fatalf("TestDeepClone(); mutation error, original data mutated.\nExpected: [1] Got: [%v]\n", out[0].meta["one"])
 	}
 }
