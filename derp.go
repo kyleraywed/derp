@@ -231,7 +231,7 @@ func (pipeline *Derp[T]) Apply(input []T) []T {
 
 			workingSlice = workingSlice[:takeUntilIndex+1]
 		}
-		// redistribute work evenly among workers after flattening
+		// redistribute work evenly among workers after every order
 		chunkSize = (len(workingSlice) + numWorkers - 1) / numWorkers
 	}
 
