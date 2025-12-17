@@ -16,13 +16,13 @@ func (pipeline *Derp[T]) Foreach(in func(value T), comments ...string)
 func (pipeline *Derp[T]) Map(in func(value T) T, comments ...string)
 
 // Skip the first n items and yields the rest. Comments inferred.
-func (pipeline *Derp[T]) Skip(n int)
+func (pipeline *Derp[T]) Skip(n int) error
 
 // Yield only the first n items. Comments inferred.
-func (pipeline *Derp[T]) Take(n int)
+func (pipeline *Derp[T]) Take(n int) error
 
 // Interpret orders on data. Return new slice.
-func (pipeline *Derp[T]) Apply(input []T) []T
+func (pipeline *Derp[T]) Apply(input []T) ([]T, error)
 ```
 
 Usage
@@ -31,6 +31,8 @@ Usage
 package main
 
 import (
+    "log"
+
     "github.com/kyleraywed/derp"
 )
 
@@ -61,10 +63,17 @@ func main() {
     })
 
     // Last. Take and skip still log inferred comments.
-    pipeline.Take(2) // get just the first 2 elements
+    if err := pipeline.Take(2); err != nil {
+        log.Println(err)
+    } // get just the first 2 elements
 
     numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-    output := pipeline.Apply(numbers) // []int{12, 16}
+    output, err := pipeline.Apply(numbers)
+    if err != nil {
+        log.Println(err)
+    }
+    
+    // []int{12, 16}
     // [12, 16, 20] will print when Apply is run since
     // Foreach() was called before Take()
 }
