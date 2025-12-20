@@ -25,7 +25,7 @@ func main() {
 	allocPipe.Map(func(value byte) byte {
 		return byte(rand.IntN(256))
 	})
-	numbers, err := allocPipe.Apply(numbers, "power-25")
+	numbers, err := allocPipe.Apply(numbers)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -57,7 +57,7 @@ func main() {
 		return true
 	})
 
-	_, err = primePipe.Apply(numbers, "power-25")
+	_, err = primePipe.Apply(numbers)
 	if err != nil {
 		log.Fatal(err)
 	}
