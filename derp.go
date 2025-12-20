@@ -4,6 +4,7 @@ package derp
 
 import (
 	"fmt"
+	"log"
 	"runtime"
 	"slices"
 	"strconv"
@@ -243,8 +244,11 @@ func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error) {
 
 			workingSlice = workingSlice[:takeUntilIndex]
 		}
+
 		// redistribute work evenly among workers after every order
+		//old := chunkSize
 		chunkSize = (len(workingSlice) + numWorkers - 1) / numWorkers
+		//log.Printf("Redistributing work:\n\tOld chunksize: %v\n\tNew chunksize: %v", old, chunkSize)
 	}
 
 	return workingSlice, nil
