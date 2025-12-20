@@ -7,7 +7,7 @@ A concurrency-driven, **d**eferred-**e**xecution, **r**eusable, data-processing 
 func (pipeline *Derp[T]) Filter(in func(value T) bool, comments ...string)
 
 // Perform logic using each element as an input. No changes to the underlying elements are made.
-// Set the first optional comment to "con" for concurrent execution of input functions.
+// Set any optional comment to "con" for concurrent execution of input functions.
 // Concurrent execution will be slower for most use-cases, while the order in which the funcs are
 // evaluated is non-deterministic. Be careful when using "con".
 func (pipeline *Derp[T]) Foreach(in func(value T), comments ...string)
@@ -22,7 +22,10 @@ func (pipeline *Derp[T]) Skip(n int) error
 func (pipeline *Derp[T]) Take(n int) error
 
 // Interpret orders on data. Return new slice.
-func (pipeline *Derp[T]) Apply(input []T) ([]T, error)
+//
+// Options:
+//   - "slow" : Deep-cloning option used when input contains pointer cycles.
+func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error)
 ```
 
 Usage

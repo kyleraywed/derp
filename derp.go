@@ -96,15 +96,17 @@ func (pipeline *Derp[T]) Take(n int) error {
 	return nil
 }
 
-// Interpret orders on data. Return new slice. If your input contains pointer cycles,
-// eg. doubly-linked lists, include "slowly" as an option.
+// Interpret orders on data. Return new slice.
+//
+// Options:
+//   - "slow" : Deep-cloning option used when input contains pointer cycles. Implements clone.Slowly()
 func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error) {
 	workingSlice := make([]T, len(input))
-	if len(options) > 0 && slices.Contains(options, "slowly") {
+	if len(options) > 0 && slices.Contains(options, "slow") {
 		log.Println("Using clone.Slowly()")
 		workingSlice = clone.Slowly(input) // for pointer cycles
 	} else {
-		workingSlice = clone.Clone(input) // deep clone by default
+		workingSlice = clone.Clone(input) // regular deep clone by default
 	}
 
 	numWorkers := runtime.GOMAXPROCS(0)
