@@ -152,6 +152,7 @@ func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error) {
 			for _, r := range results {
 				newlength += len(r)
 			}
+			//log.Printf("Flattening:\n\tOld length: %v\n\tNew length: %v\n", len(workingSlice), newlength)
 			tempSlice := make([]T, 0, newlength)
 
 			for _, r := range results {
