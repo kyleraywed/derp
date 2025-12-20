@@ -35,8 +35,6 @@ type Derp[T any] struct {
 	skipCounts []int
 
 	orders []order
-
-	throttleMult float64
 }
 
 // Keep only the elements where in returns true. Optional comment strings.
@@ -116,21 +114,23 @@ func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error) {
 		workingSlice = clone.Clone(input) // regular deep clone by default
 	}
 
+	var throttleMult float64
+
 	for _, opt := range options {
 		switch opt {
 		case "power-30":
-			pipeline.throttleMult = 0.3
+			throttleMult = 0.3
 		case "power-50":
-			pipeline.throttleMult = 0.5
+			throttleMult = 0.5
 		case "power-70":
-			pipeline.throttleMult = 0.7
+			throttleMult = 0.7
 		}
 	}
-	if pipeline.throttleMult == 0 {
-		pipeline.throttleMult = 1
+	if throttleMult == 0 {
+		throttleMult = 1
 	}
 	//numWorkers := runtime.GOMAXPROCS(0)
-	numWorkers := max(int(math.Round(float64(runtime.GOMAXPROCS(0))*pipeline.throttleMult)), 1)
+	numWorkers := max(int(math.Round(float64(runtime.GOMAXPROCS(0))*throttleMult)), 1)
 
 	// init chunksize
 	chunkSize := (len(workingSlice) + numWorkers - 1) / numWorkers
