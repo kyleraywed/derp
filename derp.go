@@ -10,7 +10,6 @@ package derp
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"runtime"
 	"slices"
@@ -127,7 +126,7 @@ func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error) {
 		}
 	}
 
-	log.Printf("Running at %v%% power", throttleMult*100)
+	//log.Printf("Running at %v%% power", throttleMult*100)
 	numWorkers := max(int(math.Round(float64(runtime.GOMAXPROCS(0))*throttleMult)), 1)
 
 	// init chunksize
