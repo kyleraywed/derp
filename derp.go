@@ -4,7 +4,6 @@ package derp
 
 import (
 	"fmt"
-	"log"
 	"runtime"
 	"slices"
 	"strconv"
@@ -102,7 +101,6 @@ func (pipeline *Derp[T]) Take(n int) error {
 func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error) {
 	workingSlice := make([]T, len(input))
 	if len(options) > 0 && slices.Contains(options, "slow") {
-		log.Println("using opt: \"slow\"")
 		workingSlice = clone.Slowly(input) // for pointer cycles
 	} else {
 		workingSlice = clone.Clone(input) // regular deep clone by default
@@ -166,7 +164,6 @@ func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error) {
 			workOrder := pipeline.foreachers[order.index]
 
 			if len(options) > 0 && slices.Contains(options, "cfe") {
-				log.Println("using opt: \"cfe\"")
 				var wg sync.WaitGroup
 				wg.Add(numWorkers)
 

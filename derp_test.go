@@ -231,9 +231,9 @@ func TestForeachFast(t *testing.T) {
 		mu.Lock()
 		gotten = append(gotten, strconv.Itoa(value))
 		mu.Unlock()
-	}, "con")
+	})
 
-	_, err := pipe.Apply(numbers)
+	_, err := pipe.Apply(numbers, "cfe")
 	if err != nil {
 		t.Errorf("TerForeachFast(); error from Apply(): %v", err)
 	}
