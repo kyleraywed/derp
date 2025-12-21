@@ -4,8 +4,9 @@ package derp
 
 /*
 	Notes:
-		- Already tried dynamic scheduling, but the necessary mutex used by the channel makes things roughly 165x slower.
+		- Dynamic scheduling slows operations by roughly 165x due to a necessary mutex used by the channel.
 			- ~200ms -> ~33s in examples/primes
+			- Stick with static chunking
 */
 
 import (
@@ -30,6 +31,7 @@ type Derp[T any] struct {
 	filterInstructs  []func(t T) bool
 	mapInstructs     []func(t T) T
 	foreachInstructs []func(t T)
+	reduceInstructs  []func(a T, v T) T
 
 	takeCounts []int
 	skipCounts []int
@@ -66,6 +68,22 @@ func (pipeline *Derp[T]) Map(in func(value T) T, comments ...string) {
 		index:    len(pipeline.mapInstructs) - 1,
 		comments: comments,
 	})
+}
+
+// Reduce
+func (pipeline *Derp[T]) Reduce(in func(acc T, value T) T, comments ...string) error {
+	if len(pipeline.reduceInstructs) > 0 {
+		return fmt.Errorf("Reduce has already been set.")
+	}
+
+	pipeline.reduceInstructs = append(pipeline.reduceInstructs, in)
+	pipeline.orders = append(pipeline.orders, order{
+		method:   "reduce",
+		index:    len(pipeline.reduceInstructs) - 1,
+		comments: comments,
+	})
+
+	return nil
 }
 
 // Skip the first n items and yield the rest. Comment inferred.
@@ -246,6 +264,9 @@ func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error) {
 			}
 
 			wg.Wait()
+
+		case "reduce":
+			// work goes here.
 
 		case "skip":
 			skipUntilIndex := pipeline.skipCounts[order.index]
