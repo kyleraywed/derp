@@ -73,7 +73,7 @@ func main() {
 
     // Fourth? NO! Reduce will ALWAYS be the LAST thing to run, it can only be declared
     // one time or it returns an error, and it returns a slice of a single element.
-    // Apply() will error when reduce is applied on an empty slice.
+    // Apply() will error if the working slice is empty when the reduce order is given.
     err := pipeline.Reduce(func(acc int, value int) int {
         return acc + value
     })
