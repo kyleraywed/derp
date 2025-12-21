@@ -116,6 +116,24 @@ func TestMap(t *testing.T) {
 	}
 }
 
+func TestReduce(t *testing.T) {
+	numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	var pipe Derp[int]
+
+	pipe.Reduce(func(acc, value int) int {
+		return acc + value
+	})
+
+	out, err := pipe.Apply(numbers)
+	if err != nil {
+		t.Errorf("TestReduce(); error from Apply(): %v", err)
+	}
+
+	if out[0] != 55 {
+		t.Errorf("TestReduce(); value inequality.\nExpected [55] Got: [%v]\n", out)
+	}
+}
+
 func TestTake(t *testing.T) {
 	numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	var halfPipe Derp[int]
@@ -239,7 +257,7 @@ func TestForeachFast(t *testing.T) {
 
 	_, err := pipe.Apply(numbers, "cfe")
 	if err != nil {
-		t.Errorf("TerForeachFast(); error from Apply(): %v", err)
+		t.Errorf("TestForeachFast(); error from Apply(): %v", err)
 	}
 
 	slices.SortFunc(gotten, func(a, b string) int {
