@@ -70,7 +70,15 @@ func (pipeline *Derp[T]) Map(in func(value T) T, comments ...string) {
 	})
 }
 
-// Reduce
+// Reduce sets a terminal operation that aggregates all elements of the pipeline into a single value.
+//
+// The provided function `in` is called with an accumulator and each element of the slice,
+// in order. The result of each call becomes the new accumulator for the next element.
+//
+// Only one Reduce can be set per pipeline. It is automatically executed last
+// regardless of the order in which it was added.
+//
+// Returns a slice containing a single value: the final accumulator.
 func (pipeline *Derp[T]) Reduce(in func(acc T, value T) T, comments ...string) error {
 	if len(pipeline.reduceInstructs) > 0 {
 		return fmt.Errorf("Reduce has already been set.")
@@ -126,7 +134,7 @@ func (pipeline *Derp[T]) Take(n int) error {
 //   - "power-[25, 50, 75]"; throttle cpu usage to 25, 50, or 75%. Default is 100%.
 func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error) {
 	// Ensure reduce is the last instruction in the orders
-	if len(pipeline.reduceInstructs) > 0 {
+	if len(pipeline.reduceInstructs) > 0 && pipeline.orders[len(pipeline.orders)-1].method != "reduce" {
 		for idx, ord := range pipeline.orders {
 			if ord.method == "reduce" {
 				pipeline.orders = append(pipeline.orders[:idx], pipeline.orders[idx+1:]...) // remove it where it is
