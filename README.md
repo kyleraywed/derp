@@ -100,7 +100,8 @@ func main() {
         log.Println(err)
     }
     
-    // []int{12, 16}
+    // []int{12, 16} before reduce
+    // output = [28]
     // [12, 16, 20] will print when Apply is run since
     // Foreach() was called before Take()
 }
