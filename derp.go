@@ -287,7 +287,7 @@ func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error) {
 			workOrder := pipeline.reduceInstruct
 
 			if len(workingSlice) == 0 {
-				return nil, fmt.Errorf("Apply(); reduce on empty slice")
+				return nil, fmt.Errorf("Reduce(); reduce on empty slice")
 			}
 
 			acc := workingSlice[0]
