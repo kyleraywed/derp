@@ -22,6 +22,18 @@ import (
 	clone "github.com/huandu/go-clone/generic"
 )
 
+type Option byte
+
+const (
+	NoCopyOpt Option = iota
+	CloneOpt
+	DpcOpt
+	CfeOpt
+	Power25Opt
+	Power50Opt
+	Power75Opt
+)
+
 type order struct {
 	method   string
 	index    int
@@ -155,7 +167,7 @@ func (pipeline *Derp[T]) Take(n int) error {
 //   - "dpc" : "(d)eep-clone (p)ointer (c)ycles"; eg. doubly-linked lists. Implements clone.Slowly().
 //   - "cfe" : "(c)oncurrent (f)or(e)ach"; function eval order is non-deterministic. Use with caution.
 //   - "power-[25, 50, 75]"; throttle cpu usage to 25, 50, or 75%. Default is 100%.
-func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error) {
+func (pipeline *Derp[T]) Apply(input []T, options ...Option) ([]T, error) {
 	// Ensure reduce is the last instruction in the orders
 	if pipeline.reduceInstruct != nil && pipeline.orders[len(pipeline.orders)-1].method != "reduce" {
 		for idx, ord := range pipeline.orders {
@@ -167,8 +179,8 @@ func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error) {
 		}
 	}
 
-	hasMultipleClones := func(in []string) bool {
-		targets := []string{"nocopy", "clone", "dpc"}
+	hasMultipleCloneOpts := func(in []Option) bool {
+		targets := []Option{NoCopyOpt, CloneOpt, DpcOpt}
 		count := 0
 
 		for _, val := range targets {
@@ -183,28 +195,28 @@ func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error) {
 	}
 
 	// check that multiple clone options aren't invoked
-	if hasMultipleClones(options) {
+	if hasMultipleCloneOpts(options) {
 		return nil, fmt.Errorf("error: cannot invoke multiple cloning options")
 	}
 
 	inputType := reflect.TypeOf(input[0])
 
-	hasExplicitCloneOption := slices.Contains(options, "dcp") || slices.Contains(options, "nocopy") || slices.Contains(options, "clone")
+	hasExplicitCloneOption := slices.Contains(options, DpcOpt) || slices.Contains(options, NoCopyOpt) || slices.Contains(options, CloneOpt)
 
 	if !hasExplicitCloneOption {
 		switch inputType.Kind() {
 		case reflect.Slice, reflect.Map, reflect.Pointer, reflect.Struct:
-			options = append(options, "clone")
+			options = append(options, CloneOpt)
 		default:
-			options = append(options, "nocopy")
+			options = append(options, NoCopyOpt)
 		}
 	}
 
 	workingSlice := make([]T, len(input))
 
-	if len(options) > 0 && slices.Contains(options, "dpc") {
+	if len(options) > 0 && slices.Contains(options, DpcOpt) {
 		workingSlice = clone.Slowly(input) // for pointer cycles
-	} else if len(options) > 0 && slices.Contains(options, "nocopy") {
+	} else if len(options) > 0 && slices.Contains(options, NoCopyOpt) {
 		workingSlice = input
 	} else {
 		workingSlice = clone.Clone(input) // regular deep clone by default
@@ -213,11 +225,11 @@ func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error) {
 	throttleMult := 1.0
 	for _, opt := range options {
 		switch opt {
-		case "power-25":
+		case Power25Opt:
 			throttleMult = 0.25
-		case "power-50":
+		case Power50Opt:
 			throttleMult = 0.5
-		case "power-75":
+		case Power75Opt:
 			throttleMult = 0.75
 		}
 	}
@@ -282,7 +294,7 @@ func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error) {
 		case "foreach":
 			workOrder := pipeline.foreachInstructs[order.index]
 
-			if len(options) > 0 && slices.Contains(options, "cfe") {
+			if len(options) > 0 && slices.Contains(options, CfeOpt) {
 				var wg sync.WaitGroup
 				wg.Add(numWorkers)
 

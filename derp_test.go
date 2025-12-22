@@ -171,7 +171,7 @@ func TestForeachFast(t *testing.T) {
 		mu.Unlock()
 	})
 
-	_, err := pipe.Apply(numbers, "cfe")
+	_, err := pipe.Apply(numbers, CfeOpt)
 	if err != nil {
 		t.Errorf("TestForeachFast(); error from Apply(): %v", err)
 	}

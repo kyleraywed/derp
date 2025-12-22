@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 	"math/rand/v2"
-	"slices"
 	"time"
 	"unsafe"
 
@@ -59,11 +58,9 @@ func main() {
 		return true
 	})
 
-	out, err := primePipe.Apply(numbers, "nocopy")
+	_, err = primePipe.Apply(numbers)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("Finished in %v\n", time.Since(start))
-
-	fmt.Println(slices.Equal(out, numbers))
 }
