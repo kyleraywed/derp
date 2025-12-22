@@ -98,7 +98,7 @@ func (pipeline *Derp[T]) Map(in func(value T) T, comments ...string) {
 // Only one Reduce can be set per pipeline. It is automatically executed last
 // regardless of the order in which it was added.
 //
-// When Apply() is run, Apply()'s output will be a []T with a single elelment.
+// When Apply() is run, Apply()'s output will be a []T with a single element.
 func (pipeline *Derp[T]) Reduce(in func(acc T, value T) T, comments ...string) error {
 	if pipeline.reduceInstruct != nil {
 		return fmt.Errorf("Reduce has already been set.")
