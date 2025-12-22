@@ -76,7 +76,7 @@ func main() {
 
     // Fourth? NO! Reduce will ALWAYS be the LAST thing to run, it can only be declared
     // one time or it returns an error. Apply() will return a length 1 slice of T with
-    // the same value.
+    // the final acc value.
     err := pipeline.Reduce(func(acc int, value int) int {
         return acc + value
     })
