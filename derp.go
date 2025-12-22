@@ -48,11 +48,11 @@ func (pipeline Derp[T]) String() string {
 		var prettyComments strings.Builder
 
 		if len(val.comments) == 0 {
-			prettyComments .WriteString("[ N/A ]\n")
+			prettyComments.WriteString("[ N/A ]\n")
 		}
 
 		for _, cmt := range val.comments {
-			prettyComments .WriteString("[ " + cmt + " ]\n\t\t")
+			prettyComments.WriteString("[ " + cmt + " ]\n\t\t")
 		}
 
 		fmt.Fprintf(&out, "Order %v:\n\tAdapter: %v\n\tIndex: %v\n\tComments: \n\t\t%v\n",
@@ -155,6 +155,7 @@ func (pipeline *Derp[T]) Take(n int) error {
 //   - "dpc" : "(d)eep-clone (p)ointer (c)ycles"; eg. doubly-linked lists. Implements clone.Slowly().
 //   - "cfe" : "(c)oncurrent (f)or(e)ach"; function eval order is non-deterministic. Use with caution.
 //   - "power-[25, 50, 75]"; throttle cpu usage to 25, 50, or 75%. Default is 100%.
+//   - "cr" : "(c)oncurrent (r)educe"; only mathematically valid if reducer is associative and commutative.
 func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error) {
 	// Ensure reduce is the last instruction in the orders
 	if pipeline.reduceInstruct != nil && pipeline.orders[len(pipeline.orders)-1].method != "reduce" {
@@ -309,17 +310,58 @@ func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error) {
 
 		case "reduce":
 			workOrder := pipeline.reduceInstruct
-			if len(workingSlice) == 0 {
-				return nil, fmt.Errorf("Reduce on empty slice")
-			}
+			if len(options) > 1 && slices.Contains(options, "cr") {
+				if len(workingSlice) == 0 {
+					panic("empty reduce")
+				}
 
-			acc := workingSlice[0]
-			for _, v := range workingSlice[1:] {
-				acc = workOrder(acc, v)
-			}
+				chunkSize := (len(workingSlice) + numWorkers - 1) / numWorkers
+				results := make([]T, numWorkers)
 
-			pipeline.reducePromise.Set(acc)
-			workingSlice = []T{acc}
+				var wg sync.WaitGroup
+				wg.Add(numWorkers)
+
+				for i := range numWorkers {
+					start := i * chunkSize
+					end := min(start+chunkSize, len(workingSlice))
+
+					if start >= len(workingSlice) {
+						wg.Done()
+						continue
+					}
+
+					go func(i int, chunk []T) {
+						defer wg.Done()
+
+						acc := chunk[0]
+						for _, v := range chunk[1:] {
+							acc = workOrder(acc, v)
+						}
+						results[i] = acc
+					}(i, workingSlice[start:end])
+				}
+
+				wg.Wait()
+
+				// Final reduce of partial results
+				acc := results[0]
+				for _, v := range results[1:] {
+					acc = pipeline.reduceInstruct(acc, v)
+				}
+
+			} else {
+				if len(workingSlice) == 0 {
+					return nil, fmt.Errorf("Reduce on empty slice")
+				}
+
+				acc := workingSlice[0]
+				for _, v := range workingSlice[1:] {
+					acc = workOrder(acc, v)
+				}
+
+				pipeline.reducePromise.Set(acc)
+				workingSlice = []T{acc}
+			}
 
 		case "skip":
 			skipUntilIndex := pipeline.skipCounts[order.index]
@@ -347,4 +389,46 @@ func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error) {
 	}
 
 	return workingSlice, nil
+}
+
+func parallelReduce[T any](data []T, workers int, fn func(acc, v T) T) T {
+	if len(data) == 0 {
+		panic("empty reduce")
+	}
+
+	chunkSize := (len(data) + workers - 1) / workers
+	results := make([]T, workers)
+
+	var wg sync.WaitGroup
+	wg.Add(workers)
+
+	for i := range workers {
+		start := i * chunkSize
+		end := min(start+chunkSize, len(data))
+
+		if start >= len(data) {
+			wg.Done()
+			continue
+		}
+
+		go func(i int, chunk []T) {
+			defer wg.Done()
+
+			acc := chunk[0]
+			for _, v := range chunk[1:] {
+				acc = fn(acc, v)
+			}
+			results[i] = acc
+		}(i, data[start:end])
+	}
+
+	wg.Wait()
+
+	// Final reduce of partial results
+	acc := results[0]
+	for _, v := range results[1:] {
+		acc = fn(acc, v)
+	}
+
+	return acc
 }

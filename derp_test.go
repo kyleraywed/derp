@@ -303,6 +303,24 @@ func TestReduce(t *testing.T) {
 	}
 }
 
+func TestReduceConcurrent(t *testing.T) {
+	numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+	var pipe Derp[int]
+
+	pipe.Reduce(func(acc, value int) int {
+		return acc + value
+	})
+
+	out, err := pipe.Apply(numbers)
+	if err != nil {
+		t.Errorf("TestReduce(); error from Apply(): %v", err)
+	}
+
+	if out[0] != 55 {
+		t.Errorf("TestReduce(); value inequality.\nExpected [55] Got: [%v]\n", out)
+	}
+}
+
 func TestReducePromise(t *testing.T) {
 	numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	var pipe Derp[int]
