@@ -38,7 +38,7 @@ func (pipeline *Derp[T]) Take(n int) error
 //   - Opt_Clone : deep-clone non pointer cycle data. Default for reference types and structs.
 //   - Opt_Dpc : "(d)eep-clone (p)ointer (c)ycles"; eg. doubly-linked lists. Implements clone.Slowly().
 //   - Opt_Cfe : "(c)oncurrent (f)or(e)ach"; function eval order is non-deterministic. Use with caution.
-//   - Opt_Power25, Opt_Power50, Opt_Power75; throttle cpu usage to 25, 50, or 75%. Default is 100%.
+//   - Opt_Power25, Opt_Power50, Opt_Power75 : throttle cpu usage to 25, 50, or 75%. Default is 100%.
 func (pipeline *Derp[T]) Apply(input []T, options ...Option) ([]T, error) 
 ```
 

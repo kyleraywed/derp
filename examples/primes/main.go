@@ -22,7 +22,7 @@ func main() {
 	fmt.Print("Allocating... ")
 
 	numbers := make([]int, size)
-	var allocPipe derp.Derp[int]
+	var allocPipe derp.Pipeline[int]
 	allocPipe.Map(func(value int) int {
 		return rand.IntN(256)
 	})
@@ -36,7 +36,7 @@ func main() {
 	start = time.Now()
 	fmt.Print("Processing... ")
 	// new pipeline required as running Apply doesn't consume
-	var primePipe derp.Derp[int]
+	var primePipe derp.Pipeline[int]
 
 	primePipe.Filter(func(value int) bool {
 		if value < 2 {

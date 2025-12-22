@@ -40,7 +40,7 @@ type order struct {
 	comments []string
 }
 
-type Derp[T any] struct {
+type Pipeline[T any] struct {
 	filterInstructs  []func(t T) bool
 	mapInstructs     []func(t T) T
 	foreachInstructs []func(t T)
@@ -51,7 +51,7 @@ type Derp[T any] struct {
 	orders []order
 }
 
-func (pipeline Derp[T]) String() string {
+func (pipeline Pipeline[T]) String() string {
 	var out strings.Builder
 
 	for idx, val := range pipeline.orders {
@@ -73,7 +73,7 @@ func (pipeline Derp[T]) String() string {
 }
 
 // Keep only the elements where in returns true. Optional comment strings.
-func (pipeline *Derp[T]) Filter(in func(value T) bool, comments ...string) {
+func (pipeline *Pipeline[T]) Filter(in func(value T) bool, comments ...string) {
 	pipeline.filterInstructs = append(pipeline.filterInstructs, in)
 	pipeline.orders = append(pipeline.orders, order{
 		method:   "filter",
@@ -84,7 +84,7 @@ func (pipeline *Derp[T]) Filter(in func(value T) bool, comments ...string) {
 
 // Perform logic using each element as an input. No changes to the underlying elements are made.
 // Optional comment strings.
-func (pipeline *Derp[T]) Foreach(in func(value T), comments ...string) {
+func (pipeline *Pipeline[T]) Foreach(in func(value T), comments ...string) {
 	pipeline.foreachInstructs = append(pipeline.foreachInstructs, in)
 	pipeline.orders = append(pipeline.orders, order{
 		method:   "foreach",
@@ -94,7 +94,7 @@ func (pipeline *Derp[T]) Foreach(in func(value T), comments ...string) {
 }
 
 // Transform each value by applying a function. Optional comment strings.
-func (pipeline *Derp[T]) Map(in func(value T) T, comments ...string) {
+func (pipeline *Pipeline[T]) Map(in func(value T) T, comments ...string) {
 	pipeline.mapInstructs = append(pipeline.mapInstructs, in)
 	pipeline.orders = append(pipeline.orders, order{
 		method:   "map",
@@ -112,7 +112,7 @@ func (pipeline *Derp[T]) Map(in func(value T) T, comments ...string) {
 // regardless of the order in which it was added.
 //
 // When Apply() is run, Apply()'s output will be a []T with a single element.
-func (pipeline *Derp[T]) Reduce(in func(acc T, value T) T, comments ...string) error {
+func (pipeline *Pipeline[T]) Reduce(in func(acc T, value T) T, comments ...string) error {
 	if pipeline.reduceInstruct != nil {
 		return fmt.Errorf("Reduce has already been set.")
 	}
@@ -127,7 +127,7 @@ func (pipeline *Derp[T]) Reduce(in func(acc T, value T) T, comments ...string) e
 }
 
 // Skip the first n items and yield the rest. Comment inferred.
-func (pipeline *Derp[T]) Skip(n int) error {
+func (pipeline *Pipeline[T]) Skip(n int) error {
 	if n < 1 {
 		return fmt.Errorf("Skip(%v): No order submitted.", n)
 	}
@@ -143,7 +143,7 @@ func (pipeline *Derp[T]) Skip(n int) error {
 }
 
 // Yield only the first n items from the pipeline. Comment inferred.
-func (pipeline *Derp[T]) Take(n int) error {
+func (pipeline *Pipeline[T]) Take(n int) error {
 	if n < 1 {
 		return fmt.Errorf("Take(%v): No order submitted.", n)
 	}
@@ -166,8 +166,8 @@ func (pipeline *Derp[T]) Take(n int) error {
 //   - Opt_Clone : deep-clone non pointer cycle data. Default for reference types and structs.
 //   - Opt_Dpc : "(d)eep-clone (p)ointer (c)ycles"; eg. doubly-linked lists. Implements clone.Slowly().
 //   - Opt_Cfe : "(c)oncurrent (f)or(e)ach"; function eval order is non-deterministic. Use with caution.
-//   - Opt_Power25, Opt_Power50, Opt_Power75; throttle cpu usage to 25, 50, or 75%. Default is 100%.
-func (pipeline *Derp[T]) Apply(input []T, options ...Option) ([]T, error) {
+//   - Opt_Power25, Opt_Power50, Opt_Power75 : throttle cpu usage to 25, 50, or 75%. Default is 100%.
+func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) {
 	// Ensure reduce is the last instruction in the orders
 	if pipeline.reduceInstruct != nil && pipeline.orders[len(pipeline.orders)-1].method != "reduce" {
 		for idx, ord := range pipeline.orders {

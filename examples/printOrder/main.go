@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	var enum derp.Derp[byte]
+	var enum derp.Pipeline[byte]
 
 	enum.Filter(func(value byte) bool {
 		return value%2 == 0

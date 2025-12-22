@@ -29,7 +29,7 @@ func TestDeepClone(t *testing.T) {
 
 	people := []person{p1}
 
-	var pipe Derp[person]
+	var pipe Pipeline[person]
 
 	pipe.Map(func(value person) person {
 		value.tags[0] = "CHANGED"
@@ -111,7 +111,7 @@ Node 10: prev=9, next=nil`
 
 func TestFilter(t *testing.T) {
 	numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	var pipe Derp[int]
+	var pipe Pipeline[int]
 
 	pipe.Filter(func(value int) bool {
 		return value%2 == 0 // return evens
@@ -138,7 +138,7 @@ func TestFilter(t *testing.T) {
 // Testing is the only reason for writing code like this.
 func TestForeach(t *testing.T) {
 	numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	var pipe Derp[int]
+	var pipe Pipeline[int]
 
 	expected := []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}
 	var gotten []string
@@ -158,7 +158,7 @@ func TestForeach(t *testing.T) {
 
 func TestForeachFast(t *testing.T) {
 	numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	var pipe Derp[int]
+	var pipe Pipeline[int]
 
 	expected := []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}
 	var gotten []string
@@ -191,7 +191,7 @@ func TestForeachFast(t *testing.T) {
 
 func TestForeachMut(t *testing.T) {
 	numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	var pipe Derp[int]
+	var pipe Pipeline[int]
 
 	pipe.Foreach(func(value int) {
 		value = value * 2
@@ -209,7 +209,7 @@ func TestForeachMut(t *testing.T) {
 
 func TestMap(t *testing.T) {
 	numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	var pipe Derp[int]
+	var pipe Pipeline[int]
 
 	pipe.Map(func(value int) int {
 		return value * value // square the numbers
@@ -234,7 +234,7 @@ func TestMap(t *testing.T) {
 }
 
 func TestOrder(t *testing.T) {
-	var pipe Derp[int]
+	var pipe Pipeline[int]
 
 	pipe.Filter(func(value int) bool {
 		return value%2 == 0
@@ -287,7 +287,7 @@ func TestOrder(t *testing.T) {
 
 func TestReduce(t *testing.T) {
 	numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	var pipe Derp[int]
+	var pipe Pipeline[int]
 
 	pipe.Reduce(func(acc, value int) int {
 		return acc + value
@@ -305,7 +305,7 @@ func TestReduce(t *testing.T) {
 
 func TestReduceConcurrent(t *testing.T) {
 	numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	var pipe Derp[int]
+	var pipe Pipeline[int]
 
 	pipe.Reduce(func(acc, value int) int {
 		return acc + value
@@ -323,7 +323,7 @@ func TestReduceConcurrent(t *testing.T) {
 
 func TestSkip(t *testing.T) {
 	numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	var halfPipe Derp[int]
+	var halfPipe Pipeline[int]
 
 	if err := halfPipe.Skip(5); err != nil {
 		log.Println(err)
@@ -349,7 +349,7 @@ func TestSkip(t *testing.T) {
 
 func TestTake(t *testing.T) {
 	numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	var halfPipe Derp[int]
+	var halfPipe Pipeline[int]
 
 	if err := halfPipe.Take(5); err != nil {
 		log.Println(err)
