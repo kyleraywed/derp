@@ -150,8 +150,8 @@ func (pipeline *Derp[T]) Take(n int) error {
 // Options:
 //   - "dpc" : "(d)eep-clone (p)ointer (c)ycles"; eg. doubly-linked lists. Implements clone.Slowly().
 //   - "cfe" : "(c)oncurrent (f)or(e)ach"; function eval order is non-deterministic. Use with caution.
-//   - "power-[25, 50, 75]"; throttle cpu usage to 25, 50, or 75%. Default is 100%.
 //   - "cr" : "(c)oncurrent (r)educe"; only mathematically valid if reducer is associative and commutative.
+//   - "power-[25, 50, 75]"; throttle cpu usage to 25, 50, or 75%. Default is 100%.
 func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error) {
 	// Ensure reduce is the last instruction in the orders
 	if pipeline.reduceInstruct != nil && pipeline.orders[len(pipeline.orders)-1].method != "reduce" {
