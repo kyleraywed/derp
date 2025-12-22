@@ -1,7 +1,7 @@
 package main
 
 /*
-	- Benchmark the time it takes to filter the prime numbers from 100MB of random bytes.
+	- Benchmark the time it takes to filter the prime numbers from 100MB of random ints.
 */
 
 import (
@@ -9,21 +9,22 @@ import (
 	"log"
 	"math/rand/v2"
 	"time"
+	"unsafe"
 
 	"github.com/kyleraywed/derp"
 )
 
-const size = 1000 * 1000 * 100
+const size = (1024 * 1024 * 100) / int(unsafe.Sizeof(int(0)))
 
 func main() {
-	fmt.Printf("Size: %v bytes\n\n", size)
+	fmt.Printf("Size: %v ints / %v bytes\n\n", size, size*int(unsafe.Sizeof(int(0))))
 	start := time.Now()
 	fmt.Print("Allocating... ")
 
-	numbers := make([]byte, size)
-	var allocPipe derp.Derp[byte]
-	allocPipe.Map(func(value byte) byte {
-		return byte(rand.IntN(256))
+	numbers := make([]int, size)
+	var allocPipe derp.Derp[int]
+	allocPipe.Map(func(value int) int {
+		return rand.IntN(256)
 	})
 	numbers, err := allocPipe.Apply(numbers)
 	if err != nil {
@@ -35,9 +36,9 @@ func main() {
 	start = time.Now()
 	fmt.Print("Processing... ")
 	// new pipeline required as running Apply doesn't consume
-	var primePipe derp.Derp[byte]
+	var primePipe derp.Derp[int]
 
-	primePipe.Filter(func(value byte) bool {
+	primePipe.Filter(func(value int) bool {
 		if value < 2 {
 			return false
 		}
