@@ -19,7 +19,6 @@ import (
 	"sync"
 
 	clone "github.com/huandu/go-clone/generic"
-	"github.com/kyleraywed/derp/promise"
 )
 
 type order struct {
@@ -37,8 +36,6 @@ type Derp[T any] struct {
 	skipCounts       []int
 
 	orders []order
-
-	reducePromise promise.Promise[T]
 }
 
 func (pipeline Derp[T]) String() string {
@@ -103,9 +100,9 @@ func (pipeline *Derp[T]) Map(in func(value T) T, comments ...string) {
 //
 // Returns a promise and an error. When Apply() is run, Apply()'s output will be a []T with a single elelment.
 // The promise is fulfilled and promise.Get() will point to a single T value. Nil if unfulfilled.
-func (pipeline *Derp[T]) Reduce(in func(acc T, value T) T, comments ...string) (*promise.Promise[T], error) {
+func (pipeline *Derp[T]) Reduce(in func(acc T, value T) T, comments ...string) error {
 	if pipeline.reduceInstruct != nil {
-		return nil, fmt.Errorf("Reduce has already been set.")
+		return fmt.Errorf("Reduce has already been set.")
 	}
 
 	pipeline.reduceInstruct = in
@@ -114,7 +111,7 @@ func (pipeline *Derp[T]) Reduce(in func(acc T, value T) T, comments ...string) (
 		comments: comments,
 	})
 
-	return &pipeline.reducePromise, nil
+	return nil
 }
 
 // Skip the first n items and yield the rest. Comment inferred.
@@ -359,7 +356,6 @@ func (pipeline *Derp[T]) Apply(input []T, options ...string) ([]T, error) {
 					acc = workOrder(acc, v)
 				}
 
-				pipeline.reducePromise.Set(acc)
 				workingSlice = []T{acc}
 			}
 

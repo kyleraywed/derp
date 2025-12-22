@@ -321,26 +321,6 @@ func TestReduceConcurrent(t *testing.T) {
 	}
 }
 
-func TestReducePromise(t *testing.T) {
-	numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
-	var pipe Derp[int]
-	promise, _ := pipe.Reduce(func(acc, value int) int {
-		return acc + value
-	})
-
-	if _, ok := promise.Get(); ok {
-		t.Error("TestReducePromise(); promise expected to be nil")
-	}
-
-	pipe.Apply(numbers)
-
-	if val, ok := promise.Get(); ok {
-		if val != 55 {
-			t.Errorf("TestReduceReturn(); promise expected to be fulfilled")
-		}
-	}
-}
-
 func TestSkip(t *testing.T) {
 	numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	var halfPipe Derp[int]
