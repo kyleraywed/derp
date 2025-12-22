@@ -96,7 +96,6 @@ func main() {
 
     numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
     // Apply() performs the actual work orders declared above.
-    // Reference types / strucs CloneOpt by default, value types NoCopyOpt.
     // The pipeline does not consume, and is safely reusable.
     output, err := pipeline.Apply(numbers)
     if err != nil {
@@ -113,3 +112,7 @@ Notes and design
 -
 - Deep cloning is handled via [go-clone](https://github.com/huandu/go-clone).
 - Derp is **not** safe for concurrent use.
+- Setting more than one clone option will result in error.
+- Setting more than one power option will result in error.
+- Default copy: Ref types & structs -> Opt_Clone
+- Default copy: Val types -> Opt_NoCopy
