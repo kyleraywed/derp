@@ -30,6 +30,6 @@ func main() {
 
 	fmt.Println(enum)
 	fmt.Printf("------------Apply()-------------\n\n")
-	enum.Apply([]byte{})
+	enum.Apply([]byte{0}) // Apply() returns early if slice is empty
 	fmt.Println(enum)
 }

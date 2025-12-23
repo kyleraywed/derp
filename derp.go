@@ -168,6 +168,11 @@ func (pipeline *Pipeline[T]) Take(n int) error {
 //   - Opt_Cfe : "(c)oncurrent (f)or(e)ach"; function eval order is non-deterministic. Use with caution.
 //   - Opt_Power25, Opt_Power50, Opt_Power75 : throttle cpu usage to 25, 50, or 75%. Default is 100%.
 func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) {
+	if len(input) < 1 {
+		var zero []T
+		return zero, fmt.Errorf("error: empty input slice")
+	}
+
 	// Ensure reduce is the last instruction in the orders
 	if pipeline.reduceInstruct != nil && pipeline.orders[len(pipeline.orders)-1].method != "reduce" {
 		for idx, ord := range pipeline.orders {
@@ -199,7 +204,8 @@ func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) {
 		}
 	}
 
-	workingSlice := make([]T, len(input))
+	//workingSlice := make([]T, len(input))
+	var workingSlice []T
 
 	for _, opt := range options {
 		switch opt {
