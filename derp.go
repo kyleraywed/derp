@@ -164,8 +164,8 @@ func (pipeline *Pipeline[T]) Take(n int) error {
 // Options:
 //   - Opt_NoCopy : operate directly on the input backing array. Expect mutations on reference types. Default for value types.
 //   - Opt_Clone : deep-clone non pointer cycle data. Default for reference types and structs.
-//   - Opt_Dpc : "(d)eep-clone (p)ointer (c)ycles"; eg. doubly-linked lists. Implements clone.Slowly().
-//   - Opt_Cfe : "(c)oncurrent (f)or(e)ach"; function eval order is non-deterministic. Use with caution.
+//   - Opt_DPC : "(d)eep-clone (p)ointer (c)ycles"; eg. doubly-linked lists. Implements clone.Slowly().
+//   - Opt_CFE : "(c)oncurrent (f)or(e)ach"; function eval order is non-deterministic. Use with caution.
 //   - Opt_Power25, Opt_Power50, Opt_Power75 : throttle cpu usage to 25, 50, or 75%. Default is 100%.
 func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) {
 	if len(input) < 1 {
@@ -195,6 +195,7 @@ func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) {
 	inputType := reflect.TypeOf(input[0])
 	hasExplicitCloneOption := slices.Contains(options, Opt_DPC) || slices.Contains(options, Opt_NoCopy) || slices.Contains(options, Opt_Clone)
 
+	// default to NoCopy for value types, Clone for everything else.
 	if !hasExplicitCloneOption {
 		switch inputType.Kind() {
 		case reflect.Slice, reflect.Map, reflect.Pointer, reflect.Struct:
@@ -204,7 +205,6 @@ func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) {
 		}
 	}
 
-	//workingSlice := make([]T, len(input))
 	var workingSlice []T
 
 	for _, opt := range options {
