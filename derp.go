@@ -159,7 +159,6 @@ func (pipeline *Pipeline[T]) Take(n int) error {
 }
 
 // Interpret orders on data. Return new slice.
-// Non-pointer-cycle-safe deep-cloning by default.
 //
 // Options:
 //   - Opt_NoCopy : operate directly on the input backing array. Expect mutations on reference types. Default for value types.
