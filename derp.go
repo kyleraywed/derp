@@ -48,7 +48,6 @@ type Pipeline[T any] struct {
 	reduceInstruct   func(a T, v T) T
 	skipCounts       []int
 	takeCounts       []int
-	doReset          bool
 
 	orders []order
 }
@@ -175,7 +174,7 @@ func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) {
 		return zero, fmt.Errorf("empty input slice")
 	}
 
-	// Reduce and reset should be the last two instructions, in that order.
+	// Reduce should be the last instruction
 	if pipeline.reduceInstruct != nil && pipeline.orders[len(pipeline.orders)-1].method != "reduce" {
 		for idx, ord := range pipeline.orders {
 			if ord.method == "reduce" {
@@ -395,9 +394,9 @@ func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) {
 		pipeline.foreachInstructs = nil
 		pipeline.mapInstructs = nil
 		pipeline.reduceInstruct = nil
-		pipeline.doReset = false
 		pipeline.skipCounts = nil
 		pipeline.takeCounts = nil
+		pipeline.orders = nil
 	}
 
 	return workingSlice, nil

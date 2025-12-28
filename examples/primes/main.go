@@ -23,11 +23,11 @@ func main() {
 	fmt.Print("Allocating... ")
 
 	numbers := make([]int, size)
-	var allocPipe derp.Pipeline[int]
-	allocPipe.Map(func(value int) int {
+	var pipe derp.Pipeline[int]
+	pipe.Map(func(value int) int {
 		return rand.IntN(256)
 	})
-	numbers, err := allocPipe.Apply(numbers)
+	numbers, err := pipe.Apply(numbers, derp.Opt_Reset)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,13 +37,13 @@ func main() {
 	start = time.Now()
 	fmt.Print("Processing... ")
 	// new pipeline required as running Apply doesn't consume
-	var primePipe derp.Pipeline[int]
+	//var primePipe derp.Pipeline[int]
 
-	primePipe.Filter(func(value int) bool {
+	pipe.Filter(func(value int) bool {
 		return isPrime(value)
 	})
 
-	_, err = primePipe.Apply(numbers)
+	_, err = pipe.Apply(numbers)
 	if err != nil {
 		log.Fatal(err)
 	}
