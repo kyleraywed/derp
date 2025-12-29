@@ -39,6 +39,7 @@ func (pipeline *Pipeline[T]) Take(n int) error
 //   - Opt_Dpc : "(d)eep-clone (p)ointer (c)ycles"; eg. doubly-linked lists. Implements clone.Slowly().
 //   - Opt_Cfe : "(c)oncurrent (f)or(e)ach"; function eval order is non-deterministic. Use with caution.
 //   - Opt_Power25, Opt_Power50, Opt_Power75 : throttle cpu usage to 25, 50, or 75%. Default is 100%.
+//   - Opt_Reset : Clear pipeline instructions after Apply().
 func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) 
 ```
 
@@ -97,6 +98,7 @@ func main() {
     numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
     // Apply() performs the actual work orders declared above.
     // The pipeline does not consume, and is safely reusable.
+    // Opt_Reset can be passed to Apply() to clear the pipeline after work.
     output, err := pipeline.Apply(numbers)
     if err != nil {
         log.Println(err)
