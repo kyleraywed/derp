@@ -36,8 +36,8 @@ func (pipeline *Pipeline[T]) Take(n int) error
 // Options:
 //   - Opt_NoCopy : operate directly on the input backing array. Expect mutations on reference types. Default for value types.
 //   - Opt_Clone : deep-clone non pointer cycle data. Default for reference types and structs.
-//   - Opt_Dpc : "(d)eep-clone (p)ointer (c)ycles"; eg. doubly-linked lists. Implements clone.Slowly().
-//   - Opt_Cfe : "(c)oncurrent (f)or(e)ach"; function eval order is non-deterministic. Use with caution.
+//   - Opt_DPC : "(d)eep-clone (p)ointer (c)ycles"; eg. doubly-linked lists. Implements clone.Slowly().
+//   - Opt_CFE : "(c)oncurrent (f)or(e)ach"; function eval order is non-deterministic. Use with caution.
 //   - Opt_Power25, Opt_Power50, Opt_Power75 : throttle cpu usage to 25, 50, or 75%. Default is 100%.
 //   - Opt_Reset : Clear pipeline instructions after Apply().
 func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) 
