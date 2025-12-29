@@ -1,9 +1,5 @@
 package main
 
-/*
-	- Benchmark the time it takes to filter the prime numbers from 100MB of random ints.
-*/
-
 import (
 	"fmt"
 	"log"
