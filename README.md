@@ -66,7 +66,7 @@ func main() {
 
     // Second. Also notice the optional comment. String() is implemented;
     // fmt.Print()ing the object presents a detailed order invoice.
-    pipeline.Map(func(value int) int {
+    pipeline.Map(func(index int, value int) int {
         return value * 2
     }, "Double them")
 
