@@ -14,12 +14,16 @@ const size = (1024 * 1024 * 200) / int(unsafe.Sizeof(int(0)))
 
 func main() {
 	fmt.Printf("Size: %v ints / %v bytes\n", size, size*int(unsafe.Sizeof(int(0))))
-	numbers := Range(size)
+	numbers := make([]int, size)
+	//numbers := Range(size)
 
 	var pipe derp.Pipeline[int]
+	pipe.Map(func(index int, value int) int {
+		return index + 1
+	})
 
 	start := time.Now()
-	fmt.Print("Processing with Derp... ")
+	fmt.Print("Processing with Derp...\t")
 	numbers, err := pipe.Apply(numbers)
 	if err != nil {
 		log.Fatal(err)
@@ -36,7 +40,7 @@ func main() {
 	fmt.Printf("Finished in %v\n", time.Since(start))
 
 	start = time.Now()
-	fmt.Print("Processing via range... ")
+	fmt.Print("Processing via range...\t")
 	rangeHolder := make([]int, len(numbers))
 	for _, val := range numbers {
 		if isPrime(val) {
@@ -44,14 +48,6 @@ func main() {
 		}
 	}
 	fmt.Printf("Finished in %v\n", time.Since(start))
-}
-
-func Range(n int) []int {
-	out := make([]int, n)
-	for i := range out {
-		out[i] = i + 1
-	}
-	return out
 }
 
 func isPrime(value int) bool {

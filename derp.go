@@ -44,7 +44,7 @@ type order struct {
 type Pipeline[T any] struct {
 	filterInstructs  []func(t T) bool
 	foreachInstructs []func(t T)
-	mapInstructs     []func(t T) T
+	mapInstructs     []func(index int, t T) T
 	reduceInstruct   func(a T, v T) T
 	skipCounts       []int
 	takeCounts       []int
@@ -94,8 +94,11 @@ func (pipeline *Pipeline[T]) Foreach(in func(value T), comments ...string) {
 	})
 }
 
-// Transform each value by applying a function. Optional comment strings.
-func (pipeline *Pipeline[T]) Map(in func(value T) T, comments ...string) {
+// Transform each value with access to its index in the current slice.
+func (pipeline *Pipeline[T]) Map(
+	in func(index int, value T) T,
+	comments ...string,
+) {
 	pipeline.mapInstructs = append(pipeline.mapInstructs, in)
 	pipeline.orders = append(pipeline.orders, order{
 		method:   "map",
@@ -330,8 +333,8 @@ func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) {
 			var wg sync.WaitGroup
 			wg.Add(numWorkers)
 
-			for idx := range numWorkers {
-				start := idx * chunkSize
+			for w := range numWorkers {
+				start := w * chunkSize
 
 				if start >= len(workingSlice) {
 					wg.Done()
@@ -342,14 +345,13 @@ func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) {
 
 				chunk := workingSlice[start:end]
 
-				go func(c []T) {
+				go func(c []T, start int) {
 					defer wg.Done()
-					for i := range chunk {
-						c[i] = workOrder(c[i])
+					for i := range c {
+						c[i] = workOrder(start+i, c[i])
 					}
-				}(chunk)
+				}(chunk, start)
 			}
-
 			wg.Wait()
 
 		case "reduce":

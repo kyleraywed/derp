@@ -24,7 +24,7 @@ func main() {
 	enum.Skip(2)
 
 	// Notice the index for this Map will be 1 since it's the second time Map is called.
-	enum.Map(func(value byte) byte {
+	enum.Map(func(index int, value byte) byte {
 		return value + 1
 	}, "Increment value", "Check the index")
 

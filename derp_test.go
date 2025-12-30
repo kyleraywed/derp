@@ -20,7 +20,7 @@ func TestNoCopyImmutability(t *testing.T) {
 		return value%2 == 0
 	})
 
-	pipe.Map(func(value int) int {
+	pipe.Map(func(_, value int) int {
 		return value * 2
 	})
 
@@ -53,7 +53,7 @@ func TestDeepClone(t *testing.T) {
 
 	var pipe Pipeline[person]
 
-	pipe.Map(func(value person) person {
+	pipe.Map(func(index int, value person) person {
 		value.tags[0] = "CHANGED"
 		value.meta["one"] = 99
 		return value
@@ -272,7 +272,7 @@ func TestMap(t *testing.T) {
 	numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
 	var pipe Pipeline[int]
 
-	pipe.Map(func(value int) int {
+	pipe.Map(func(_, value int) int {
 		return value * value // square the numbers
 	})
 
@@ -301,7 +301,7 @@ func TestOrder(t *testing.T) {
 		return value%2 == 0
 	}, "Foo")
 
-	pipe.Map(func(value int) int {
+	pipe.Map(func(index int, value int) int {
 		return value * 2
 	}, "Bar")
 
@@ -309,7 +309,7 @@ func TestOrder(t *testing.T) {
 
 	pipe.Skip(1)
 
-	pipe.Map(func(value int) int {
+	pipe.Map(func(index int, value int) int {
 		return value + 1
 	}, "baz")
 
