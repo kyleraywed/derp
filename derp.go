@@ -263,7 +263,7 @@ func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) {
 
 				chunk := workingSlice[start:end]
 
-				go func(idx int) {
+				go func(idx int, chunk []T) {
 					defer wg.Done()
 
 					out := make([]T, 0, len(chunk))
@@ -273,7 +273,7 @@ func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) {
 						}
 					}
 					results[idx] = out
-				}(idx)
+				}(idx, chunk)
 			}
 
 			wg.Wait()
@@ -284,7 +284,14 @@ func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) {
 				newlength += len(r)
 			}
 			//log.Printf("Flattening:\n\tOld length: %v\n\tNew length: %v\n", len(workingSlice), newlength)
-			tempSlice := make([]T, 0, newlength)
+
+			// resue buffers
+			var tempSlice []T
+			if cap(workingSlice) >= newlength {
+				tempSlice = workingSlice[:0]
+			} else {
+				tempSlice = make([]T, 0, newlength)
+			}
 
 			for _, r := range results {
 				tempSlice = append(tempSlice, r...)
@@ -311,13 +318,13 @@ func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) {
 
 					chunk := workingSlice[start:end]
 
-					go func() {
+					go func(chunk []T) {
 						defer wg.Done()
 
 						for _, v := range chunk {
 							workOrder(v)
 						}
-					}()
+					}(chunk)
 				}
 
 				wg.Wait()
