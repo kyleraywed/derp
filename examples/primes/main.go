@@ -14,41 +14,54 @@ const size = (1024 * 1024 * 200) / int(unsafe.Sizeof(int(0)))
 
 func main() {
 	fmt.Printf("Size: %v ints / %v bytes\n", size, size*int(unsafe.Sizeof(int(0))))
-	numbers := make([]int, size)
-	//numbers := Range(size)
-
-	var pipe derp.Pipeline[int]
-	pipe.Map(func(index int, value int) int {
-		return index + 1
-	})
+	numbers := getList()
 
 	start := time.Now()
 	fmt.Print("Processing with Derp...\t")
-	numbers, err := pipe.Apply(numbers)
-	if err != nil {
-		log.Fatal(err)
-	}
+
+	var pipe derp.Pipeline[int]
 
 	pipe.Filter(func(value int) bool {
 		return isPrime(value)
 	})
 
-	_, err = pipe.Apply(numbers)
+	_, err := pipe.Apply(numbers)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	fmt.Printf("Finished in %v\n", time.Since(start))
+
+	rangeHolder := make([]int, 0, len(numbers))
 
 	start = time.Now()
 	fmt.Print("Processing via range...\t")
-	rangeHolder := make([]int, len(numbers))
+
 	for _, val := range numbers {
 		if isPrime(val) {
 			//lint:ignore SA4010 benchmarking
 			rangeHolder = append(rangeHolder, val)
 		}
 	}
+
 	fmt.Printf("Finished in %v\n", time.Since(start))
+}
+
+func getList() []int {
+	numbers := make([]int, size)
+
+	var pipe derp.Pipeline[int]
+
+	pipe.Map(func(index int, value int) int {
+		return index + 1
+	}, "Map the same numbers every time for consistency")
+
+	numbers, err := pipe.Apply(numbers)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return numbers
 }
 
 func isPrime(value int) bool {

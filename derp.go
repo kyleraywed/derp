@@ -24,6 +24,7 @@ import (
 
 type Option byte
 
+// see Pipeline[T].Apply() for details
 const (
 	Opt_NoCopy Option = iota
 	Opt_Clone
