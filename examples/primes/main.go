@@ -10,7 +10,7 @@ import (
 )
 
 // the size in bytes of numbers
-const size = 1024 * 1024 * 100
+const size = 1024 * 1024 * 10
 
 func main() {
 	numbers := getList(size)

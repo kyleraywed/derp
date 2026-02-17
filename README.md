@@ -31,12 +31,11 @@ func (pipeline *Pipeline[T]) Skip(n int) error
 func (pipeline *Pipeline[T]) Take(n int) error
 
 // Interpret orders on data. Return new slice.
-// Non-pointer-cycle-safe deep-cloning by default.
 //
 // Options:
-//   - Opt_NoCopy : operate directly on the input backing array. Expect mutations on reference types. Default for value types.
-//   - Opt_Clone : deep-clone non pointer cycle data. Default for reference types and structs.
+//   - Opt_Clone : deep-clone non pointer cycle data. Default.
 //   - Opt_DPC : "(d)eep-clone (p)ointer (c)ycles"; eg. doubly-linked lists. Implements clone.Slowly().
+//   - Opt_NoCopy : operate directly on the backing input array. Expect mutations.
 //   - Opt_CFE : "(c)oncurrent (f)or(e)ach"; function eval order is non-deterministic. Use with caution.
 //   - Opt_Power25, Opt_Power50, Opt_Power75 : throttle cpu usage to 25, 50, or 75%. Default is 100%.
 //   - Opt_Reset : Clear pipeline instructions after Apply().
@@ -116,5 +115,5 @@ Notes and design
 - Derp is **not** safe for concurrent use.
 - Setting more than one clone option will result in error.
 - Setting more than one power option will result in error.
-- Default copy: Ref types & structs -> Opt_Clone
-- Default copy: Val types -> Opt_NoCopy
+- NoCopy is not recommended.
+- CFE is not recommended.

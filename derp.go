@@ -95,10 +95,7 @@ func (pipeline *Pipeline[T]) Foreach(in func(value T), comments ...string) {
 }
 
 // Transform each value with access to its index in the current slice.
-func (pipeline *Pipeline[T]) Map(
-	in func(index int, value T) T,
-	comments ...string,
-) {
+func (pipeline *Pipeline[T]) Map(in func(index int, value T) T, comments ...string) {
 	pipeline.mapInstructs = append(pipeline.mapInstructs, in)
 	pipeline.orders = append(pipeline.orders, order{
 		method:   "map",
@@ -199,7 +196,7 @@ func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) {
 	//inputType := reflect.TypeOf(input[0])
 	hasExplicitCloneOption := slices.Contains(options, Opt_DPC) || slices.Contains(options, Opt_InPlace) || slices.Contains(options, Opt_Clone)
 
-	// default to NoCopy for value types, Clone for everything else.
+	// default to Clone
 	if !hasExplicitCloneOption {
 		options = append(options, Opt_Clone)
 	}
