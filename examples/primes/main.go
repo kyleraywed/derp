@@ -31,10 +31,6 @@ func main() {
 
 	fmt.Printf("Finished in %v\n", time.Since(start))
 
-	for idx := 0; idx <= 7; idx++ {
-		fmt.Println(numbers[idx])
-	}
-
 	rangeHolder := make([]int, 0, len(numbers))
 
 	start = time.Now()

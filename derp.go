@@ -12,7 +12,6 @@ package derp
 import (
 	"fmt"
 	"math"
-	"reflect"
 	"runtime"
 	"slices"
 	"strconv"
@@ -26,7 +25,7 @@ type Option byte
 
 // see Pipeline[T].Apply() for details
 const (
-	Opt_NoCopy Option = iota
+	Opt_InPlace Option = iota
 	Opt_Clone
 	Opt_DPC
 	Opt_CFE
@@ -166,9 +165,9 @@ func (pipeline *Pipeline[T]) Take(n int) error {
 // Interpret orders on data. Return new slice.
 //
 // Options:
-//   - Opt_NoCopy : operate directly on the input backing array. Expect mutations on reference types. Default for value types.
-//   - Opt_Clone : deep-clone non pointer cycle data. Default for reference types and structs.
+//   - Opt_Clone : deep-clone non pointer cycle data. Default.
 //   - Opt_DPC : "(d)eep-clone (p)ointer (c)ycles"; eg. doubly-linked lists. Implements clone.Slowly().
+//   - Opt_NoCopy : operate directly on the backing input array. Expect mutations.
 //   - Opt_CFE : "(c)oncurrent (f)or(e)ach"; function eval order is non-deterministic. Use with caution.
 //   - Opt_Power25, Opt_Power50, Opt_Power75 : throttle cpu usage to 25, 50, or 75%. Default is 100%.
 //   - Opt_Reset : Clear pipeline instructions after Apply().
@@ -190,31 +189,26 @@ func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) {
 	}
 
 	// Ensure only one or less each clone opt and power opt
-	if hasMultipleOpts(options, Opt_NoCopy, Opt_Clone, Opt_DPC) {
+	if hasMultipleOpts(options, Opt_InPlace, Opt_Clone, Opt_DPC) {
 		return nil, fmt.Errorf("cannot invoke multiple cloning options")
 	}
 	if hasMultipleOpts(options, Opt_Power25, Opt_Power50, Opt_Power75) {
 		return nil, fmt.Errorf("cannot invoke multiple power throttling options")
 	}
 
-	inputType := reflect.TypeOf(input[0])
-	hasExplicitCloneOption := slices.Contains(options, Opt_DPC) || slices.Contains(options, Opt_NoCopy) || slices.Contains(options, Opt_Clone)
+	//inputType := reflect.TypeOf(input[0])
+	hasExplicitCloneOption := slices.Contains(options, Opt_DPC) || slices.Contains(options, Opt_InPlace) || slices.Contains(options, Opt_Clone)
 
 	// default to NoCopy for value types, Clone for everything else.
 	if !hasExplicitCloneOption {
-		switch inputType.Kind() {
-		case reflect.Slice, reflect.Map, reflect.Pointer, reflect.Struct:
-			options = append(options, Opt_Clone)
-		default:
-			options = append(options, Opt_NoCopy)
-		}
+		options = append(options, Opt_Clone)
 	}
 
 	var workingSlice []T
 
 	for _, opt := range options {
 		switch opt {
-		case Opt_NoCopy:
+		case Opt_InPlace:
 			workingSlice = input
 		case Opt_Clone:
 			workingSlice = clone.Clone(input)
