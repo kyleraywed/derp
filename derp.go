@@ -283,9 +283,8 @@ func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) {
 			for _, r := range results {
 				newlength += len(r)
 			}
-			//log.Printf("Flattening:\n\tOld length: %v\n\tNew length: %v\n", len(workingSlice), newlength)
 
-			// resue buffers
+			// reuse buffers
 			var tempSlice []T
 			if cap(workingSlice) >= newlength {
 				tempSlice = workingSlice[:0]

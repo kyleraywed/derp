@@ -291,6 +291,10 @@ func TestMap(t *testing.T) {
 			t.Errorf("TestMap(); value mismatch.\nExpected: [%v] Got: [%v]\n", expected, gotten)
 		}
 	}
+
+	if !slices.Equal(numbers, []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}) {
+		t.Errorf("TestMap(); underlying value type slice mutates")
+	}
 }
 
 func TestOrder(t *testing.T) {

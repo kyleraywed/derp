@@ -9,12 +9,11 @@ import (
 	"github.com/kyleraywed/derp"
 )
 
-// the number of ints to fill 200 MB
-const size = (1024 * 1024 * 200) / int(unsafe.Sizeof(int(0)))
+// the size in bytes of numbers
+const size = 1024 * 1024 * 100
 
 func main() {
-	fmt.Printf("Size: %v ints / %v bytes\n", size, size*int(unsafe.Sizeof(int(0))))
-	numbers := getList()
+	numbers := getList(size)
 
 	start := time.Now()
 	fmt.Print("Processing with Derp...\t")
@@ -32,6 +31,10 @@ func main() {
 
 	fmt.Printf("Finished in %v\n", time.Since(start))
 
+	for idx := 0; idx <= 7; idx++ {
+		fmt.Println(numbers[idx])
+	}
+
 	rangeHolder := make([]int, 0, len(numbers))
 
 	start = time.Now()
@@ -47,9 +50,13 @@ func main() {
 	fmt.Printf("Finished in %v\n", time.Since(start))
 }
 
-func getList() []int {
-	numbers := make([]int, size)
+// return a slice of ints, incrementally valued, that takes up 'size' bytes
+func getList(byteSize int) []int {
+	if byteSize/int(unsafe.Sizeof(int(0))) < 1 {
+		return nil
+	}
 
+	numbers := make([]int, byteSize/int(unsafe.Sizeof(int(0))))
 	var pipe derp.Pipeline[int]
 
 	pipe.Map(func(index int, value int) int {
