@@ -17,51 +17,57 @@ func main() {
 	numbers := getList(size)
 	numbers2 := slices.Clone(numbers)
 
-	start := time.Now()
-	fmt.Print("Processing with Derp/Clone...\t")
+	{ // derp clone
+		start := time.Now()
+		fmt.Print("Processing with Derp/Clone...\t")
 
-	var pipe derp.Pipeline[int]
+		var pipe derp.Pipeline[int]
 
-	pipe.Filter(func(value int) bool {
-		return isPrime(value)
-	})
+		pipe.Filter(func(value int) bool {
+			return isPrime(value)
+		})
 
-	_, err := pipe.Apply(numbers)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Printf("Finished in %v\n", time.Since(start))
-
-	start = time.Now()
-	fmt.Print("Processing with Derp/InPlace...\t")
-
-	var pipe2 derp.Pipeline[int]
-
-	pipe2.Filter(func(value int) bool {
-		return isPrime(value)
-	})
-
-	_, err = pipe2.Apply(numbers2, derp.Opt_InPlace)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Printf("Finished in %v\n", time.Since(start))
-
-	rangeHolder := make([]int, 0, len(numbers))
-
-	start = time.Now()
-	fmt.Print("Processing via range...\t")
-
-	for _, val := range numbers {
-		if isPrime(val) {
-			//lint:ignore SA4010 benchmarking
-			rangeHolder = append(rangeHolder, val)
+		_, err := pipe.Apply(numbers)
+		if err != nil {
+			log.Fatal(err)
 		}
+
+		fmt.Printf("Finished in %v\n", time.Since(start))
 	}
 
-	fmt.Printf("Finished in %v\n", time.Since(start))
+	{ // derp inplace
+		start := time.Now()
+		fmt.Print("Processing with Derp/InPlace...\t")
+
+		var pipe2 derp.Pipeline[int]
+
+		pipe2.Filter(func(value int) bool {
+			return isPrime(value)
+		})
+
+		_, err := pipe2.Apply(numbers2, derp.Opt_InPlace)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Printf("Finished in %v\n", time.Since(start))
+	}
+
+	{ // range
+		rangeHolder := make([]int, 0, len(numbers))
+		start := time.Now()
+		fmt.Print("Processing via range...\t")
+
+		for _, val := range numbers {
+			if isPrime(val) {
+				//lint:ignore SA4010 benchmarking
+				rangeHolder = append(rangeHolder, val)
+			}
+		}
+
+		fmt.Printf("Finished in %v\n", time.Since(start))
+	}
+
 }
 
 // return a slice of ints, incrementally valued, that takes up 'size' bytes
