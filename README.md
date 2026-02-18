@@ -115,5 +115,5 @@ Notes and design
 - Derp is **not** safe for concurrent use.
 - Setting more than one clone option will result in error.
 - Setting more than one power option will result in error.
-- NoCopy is not recommended.
+- InPlace tends to be faster in most cases. The tradeoff is the input array mutates.
 - CFE is not recommended.

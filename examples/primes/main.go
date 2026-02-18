@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"slices"
 	"time"
 	"unsafe"
 
@@ -10,13 +11,14 @@ import (
 )
 
 // the size in bytes of numbers
-const size = 1024 * 1024 * 10
+const size = 1024 * 1024 * 100
 
 func main() {
 	numbers := getList(size)
+	numbers2 := slices.Clone(numbers)
 
 	start := time.Now()
-	fmt.Print("Processing with Derp...\t")
+	fmt.Print("Processing with Derp/Clone...\t")
 
 	var pipe derp.Pipeline[int]
 
@@ -25,6 +27,22 @@ func main() {
 	})
 
 	_, err := pipe.Apply(numbers)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Finished in %v\n", time.Since(start))
+
+	start = time.Now()
+	fmt.Print("Processing with Derp/InPlace...\t")
+
+	var pipe2 derp.Pipeline[int]
+
+	pipe2.Filter(func(value int) bool {
+		return isPrime(value)
+	})
+
+	_, err = pipe2.Apply(numbers2, derp.Opt_InPlace)
 	if err != nil {
 		log.Fatal(err)
 	}

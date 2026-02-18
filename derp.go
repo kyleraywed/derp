@@ -390,13 +390,7 @@ func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) {
 	}
 
 	if slices.Contains(options, Opt_Reset) {
-		pipeline.filterInstructs = nil
-		pipeline.foreachInstructs = nil
-		pipeline.mapInstructs = nil
-		pipeline.reduceInstruct = nil
-		pipeline.skipCounts = nil
-		pipeline.takeCounts = nil
-		pipeline.orders = nil
+		*pipeline = Pipeline[T]{}
 	}
 
 	return workingSlice, nil
