@@ -18,8 +18,8 @@ func main() {
 	numbers2 := slices.Clone(numbers)
 
 	{ // derp clone
-		start := time.Now()
 		fmt.Print("Processing with Derp/Clone...\t")
+		start := time.Now()
 
 		var pipe derp.Pipeline[int]
 
@@ -32,12 +32,14 @@ func main() {
 			log.Fatal(err)
 		}
 
-		fmt.Printf("Finished in %v\n", time.Since(start))
+		done := time.Since(start)
+
+		fmt.Printf("Finished in %v\n", done)
 	}
 
 	{ // derp inplace
-		start := time.Now()
 		fmt.Print("Processing with Derp/InPlace...\t")
+		start := time.Now()
 
 		var pipe2 derp.Pipeline[int]
 
@@ -50,13 +52,16 @@ func main() {
 			log.Fatal(err)
 		}
 
-		fmt.Printf("Finished in %v\n", time.Since(start))
+		done := time.Since(start)
+
+		fmt.Printf("Finished in %v\n", done)
 	}
 
 	{ // range
 		rangeHolder := make([]int, 0, len(numbers))
-		start := time.Now()
 		fmt.Print("Processing via range...\t")
+
+		start := time.Now()
 
 		for _, val := range numbers {
 			if isPrime(val) {
@@ -65,7 +70,9 @@ func main() {
 			}
 		}
 
-		fmt.Printf("Finished in %v\n", time.Since(start))
+		done := time.Since(start)
+
+		fmt.Printf("Finished in %v\n", done)
 	}
 
 }
