@@ -71,12 +71,12 @@ func main() {
 }
 
 // return a slice of ints, incrementally valued, that takes up 'size' bytes
-func getList(byteSize int) []int {
-	if byteSize/int(unsafe.Sizeof(int(0))) < 1 {
+func getList(size int) []int {
+	if size/int(unsafe.Sizeof(int(0))) < 1 {
 		return nil
 	}
 
-	numbers := make([]int, byteSize/int(unsafe.Sizeof(int(0))))
+	numbers := make([]int, size/int(unsafe.Sizeof(int(0))))
 	var pipe derp.Pipeline[int]
 
 	pipe.Map(func(index int, value int) int {
