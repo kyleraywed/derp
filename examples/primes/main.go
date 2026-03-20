@@ -60,7 +60,6 @@ func main() {
 	{ // range
 		rangeHolder := make([]int, 0, len(numbers))
 		fmt.Print("Processing via range...\t")
-
 		start := time.Now()
 
 		for _, val := range numbers {

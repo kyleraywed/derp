@@ -164,7 +164,7 @@ func (pipeline *Pipeline[T]) Take(n int) error {
 // Options:
 //   - Opt_Clone : deep-clone non pointer cycle data. Default.
 //   - Opt_DPC : "(d)eep-clone (p)ointer (c)ycles"; eg. doubly-linked lists. Implements clone.Slowly().
-//   - Opt_NoCopy : operate directly on the backing input array. Expect mutations.
+//   - Opt_InPlace : operate directly on the backing input array. Apply() returns nil and an error.
 //   - Opt_CFE : "(c)oncurrent (f)or(e)ach"; function eval order is non-deterministic. Use with caution.
 //   - Opt_Power25, Opt_Power50, Opt_Power75 : throttle cpu usage to 25, 50, or 75%. Default is 100%.
 //   - Opt_Reset : Clear pipeline instructions after Apply().
@@ -391,6 +391,10 @@ func (pipeline *Pipeline[T]) Apply(input []T, options ...Option) ([]T, error) {
 
 	if slices.Contains(options, Opt_Reset) {
 		*pipeline = Pipeline[T]{}
+	}
+
+	if slices.Contains(options, Opt_InPlace) {
+		return nil, nil
 	}
 
 	return workingSlice, nil
