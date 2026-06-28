@@ -1,6 +1,6 @@
 # Derp
 
-A concurrency-driven, **d**eferred-**e**xecution, **r**eusable, data-processing **p**ipeline. 
+A concurrency-driven, **d**eferred-**e**xecution, **r**eusable, data-processing **p**ipeline library for Go.
 
 ```go
 // Keep only the elements where in returns true. Optional comment strings.
